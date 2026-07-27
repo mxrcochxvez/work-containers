@@ -1,0 +1,39 @@
+{
+  "$schema": "../schema/work-containers.schema.json",
+  "version": 1,
+  "project": { "name": "example-app" },
+  "runtime": {
+    "orchestrator": "compose",
+    "composeFiles": ["compose.yaml"],
+    "envFiles": [".env"]
+  },
+  "services": {
+    "database": {
+      "composeService": "postgres",
+      "protocol": "tcp"
+    },
+    "api": {
+      "composeService": "api",
+      "containerPort": 4000,
+      "dependencies": ["database"],
+      "healthcheck": "/health"
+    },
+    "web": {
+      "composeService": "web",
+      "containerPort": 3000,
+      "path": "/",
+      "openByDefault": true,
+      "dependencies": ["api"]
+    }
+  },
+  "worktrees": {
+    "projectName": "${project}-${worktree}",
+    "portRange": [41000, 49000],
+    "bindAddress": "127.0.0.1"
+  },
+  "lifecycle": {
+    "beforeUp": [],
+    "afterUp": [],
+    "beforeDown": []
+  }
+}

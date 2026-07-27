@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/mxrcochxvez/work-containers/main/schema/work-containers.schema.json",
+  "title": "work-containers manifest",
+  "type": "object",
+  "required": ["version", "project", "runtime"],
+  "properties": {
+    "version": { "const": 1 },
+    "project": {
+      "type": "object",
+      "required": ["name"],
+      "properties": { "name": { "type": "string", "minLength": 1 } },
+      "additionalProperties": false
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["orchestrator", "composeFiles"],
+      "properties": {
+        "orchestrator": { "const": "compose" },
+        "composeFiles": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "envFiles": { "type": "array", "items": { "type": "string" }, "default": [] }
+      },
+      "additionalProperties": false
+    },
+    "services": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["composeService"],
+        "properties": {
+          "composeService": { "type": "string", "minLength": 1 },
+          "containerPort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+          "protocol": { "enum": ["http", "https", "tcp"], "default": "http" },
+          "path": { "type": "string", "default": "/" },
+          "healthcheck": { "type": "string" },
+          "openByDefault": { "type": "boolean", "default": false },
+          "dependencies": { "type": "array", "items": { "type": "string" }, "default": [] }
+        },
+        "additionalProperties": false
+      },
+      "default": {}
+    },
+    "worktrees": {
+      "type": "object",
+      "properties": {
+        "projectName": { "type": "string", "default": "${project}-${worktree}" },
+        "portRange": {
+          "type": "array",
+          "prefixItems": [
+            { "type": "integer", "minimum": 1024, "maximum": 65535 },
+            { "type": "integer", "minimum": 1024, "maximum": 65535 }
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "default": [41000, 49000]
+        },
+        "bindAddress": { "type": "string", "default": "127.0.0.1" }
+      },
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "properties": {
+        "beforeUp": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "afterUp": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "beforeDown": { "type": "array", "items": { "type": "string" }, "default": [] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

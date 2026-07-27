@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { inspectComposeProject } from "./discovery.js";
 import { fileExists } from "./manifest.js";
 
 async function detectComposeFiles(cwd) {
@@ -37,7 +38,23 @@ export async function detectProject(cwd) {
   if (entries.includes("Dockerfile")) detected.push("Dockerfile");
   if (envFiles.length > 0) detected.push(`Environment files: ${envFiles.join(", ")}`);
 
-  warnings.push("Review the generated file and add logical services, Compose service names, ports, and dependencies.");
+  const discovery = composeFiles.length > 0
+    ? await inspectComposeProject(cwd, composeFiles, envFiles)
+    : { services: {}, details: [] };
+
+  if (discovery.details.length > 0) {
+    detected.push(`Compose services: ${discovery.details.map((service) => {
+      const port = service.containerPort ? `:${service.containerPort}` : "";
+      return `${service.name} (${service.protocol}${port}, confidence ${service.confidence})`;
+    }).join(", ")}`);
+    warnings.push("Review inferred protocols, preview ports, dependencies, and the default preview service before running up.");
+  } else {
+    warnings.push("Review the generated file and add logical services, Compose service names, ports, and dependencies.");
+  }
+
+  if (discovery.warning) {
+    warnings.push(`Compose inspection was unavailable: ${discovery.warning}`);
+  }
 
   return {
     manifest: {
@@ -48,7 +65,7 @@ export async function detectProject(cwd) {
         composeFiles: composeFiles.length > 0 ? composeFiles : ["compose.yaml"],
         envFiles,
       },
-      services: {},
+      services: discovery.services,
       worktrees: {
         projectName: "${project}-${worktree}",
         portRange: [41000, 49000],
@@ -58,5 +75,6 @@ export async function detectProject(cwd) {
     },
     detected,
     warnings,
+    suggestions: discovery.details,
   };
 }

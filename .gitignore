@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+.work-containers/
+*.log
+.DS_Store

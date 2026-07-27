@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="work-containers gives every Git worktree an isolated, dependency-aware Docker Compose preview environment.">
+  <meta name="theme-color" content="#f6f4ee">
+  <title>work-containers — Every worktree should be runnable</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="work-containers home">
+      <span class="wordmark-mark" aria-hidden="true">▦</span>
+      <span>work-containers</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#thesis">Thesis</a>
+      <a href="#demo">Demo</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#install">Install</a>
+      <a class="nav-source" href="https://github.com/mxrcochxvez/work-containers">Source ↗</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-kicker">A local preview runtime for parallel software work</div>
+      <h1>Every worktree<br>should be runnable.</h1>
+      <p class="hero-lede">Coding agents can create branches faster than teams can preview them. <strong>work-containers</strong> gives each Git worktree an isolated, dependency-aware Docker Compose environment with stable URLs, structured status, and a clean teardown.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#install">Run the first environment</a>
+        <a class="button button-secondary" href="#demo">See the lifecycle</a>
+      </div>
+      <div class="hero-proof" aria-label="Project properties">
+        <span>Zero runtime dependencies</span>
+        <span>Compose-native isolation</span>
+        <span>Agent-readable JSON</span>
+      </div>
+    </section>
+
+    <section class="problem-strip" aria-label="The problem">
+      <p><span>01</span> One repository.</p>
+      <p><span>02</span> Many worktrees.</p>
+      <p><span>03</span> One set of ports.</p>
+      <p class="problem-result"><span>04</span> Preview chaos.</p>
+    </section>
+
+    <section class="thesis section-grid" id="thesis">
+      <div class="section-label">The thesis</div>
+      <div class="section-body">
+        <h2>The containers already exist.<br>The coordination layer does not.</h2>
+        <p class="large-copy">Git worktrees solve parallel source control. Docker Compose solves local services. Coding agents solve implementation speed. The missing primitive is a deterministic lifecycle that binds all three together.</p>
+        <div class="argument-list">
+          <article>
+            <span class="argument-number">01</span>
+            <h3>Agents need previews, not just diffs.</h3>
+            <p>A code change is not understood until the application boots, dependencies resolve, and a human can open the result.</p>
+          </article>
+          <article>
+            <span class="argument-number">02</span>
+            <h3>Parallel branches need parallel infrastructure.</h3>
+            <p>Shared ports, networks, volumes, and databases turn concurrent work into a queue. Isolation restores actual parallelism.</p>
+          </article>
+          <article>
+            <span class="argument-number">03</span>
+            <h3>The runtime must be legible to machines.</h3>
+            <p>Structured plans, status, URLs, and failures let Claude, Codex, OpenCode, and CI act without inventing shell commands.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="demo">
+      <div class="demo-intro">
+        <div class="section-label">Interactive demo</div>
+        <h2>Pick a worktree.<br>Give it a world.</h2>
+        <p>Each environment gets its own Compose project, host ports, network, and preview URL. The source tree stays ordinary Git.</p>
+      </div>
+
+      <div class="demo-shell" data-demo>
+        <div class="demo-toolbar">
+          <div class="branch-picker" role="group" aria-label="Choose a worktree">
+            <button type="button" class="branch-button is-active" data-branch="feat/auth" aria-pressed="true">feat/auth</button>
+            <button type="button" class="branch-button" data-branch="fix/mobile-nav" aria-pressed="false">fix/mobile-nav</button>
+            <button type="button" class="branch-button" data-branch="chore/api-v2" aria-pressed="false">chore/api-v2</button>
+          </div>
+          <button type="button" class="run-button" data-run>Start preview <span aria-hidden="true">→</span></button>
+        </div>
+
+        <div class="demo-stage">
+          <div class="environment-map" aria-label="Environment topology">
+            <div class="map-repo">
+              <span class="map-eyebrow">repository</span>
+              <strong>commerce-platform</strong>
+            </div>
+            <div class="map-connector" aria-hidden="true"></div>
+            <div class="map-worktrees">
+              <div class="map-worktree is-selected" data-map-branch="feat/auth">
+                <span>feat/auth</span>
+                <em data-map-status>not running</em>
+              </div>
+              <div class="map-worktree" data-map-branch="fix/mobile-nav">
+                <span>fix/mobile-nav</span>
+                <em data-map-status>not running</em>
+              </div>
+              <div class="map-worktree" data-map-branch="chore/api-v2">
+                <span>chore/api-v2</span>
+                <em data-map-status>not running</em>
+              </div>
+            </div>
+          </div>
+
+          <div class="terminal" aria-label="Command output">
+            <div class="terminal-head">
+              <span>agent terminal</span>
+              <span data-terminal-state>ready</span>
+            </div>
+            <div class="terminal-body" aria-live="polite" data-terminal>
+              <p><span class="prompt">$</span> work-containers plan --json</p>
+              <p class="terminal-muted">Select a branch, then start its preview environment.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-result" data-result hidden>
+          <div>
+            <span class="result-label">Preview ready</span>
+            <strong data-result-url>http://127.0.0.1:43120</strong>
+          </div>
+          <div>
+            <span class="result-label">Compose project</span>
+            <strong data-result-project>commerce-platform-feat-auth</strong>
+          </div>
+          <div>
+            <span class="result-label">Services</span>
+            <strong>web · api · postgres</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how section-grid" id="architecture">
+      <div class="section-label">How it works</div>
+      <div class="section-body">
+        <h2>A thin orchestration layer.<br>No replacement platform.</h2>
+        <div class="flow" aria-label="work-containers lifecycle">
+          <div class="flow-step"><span>01</span><h3>Inspect</h3><p>Read Compose configuration and propose services, ports, and dependencies with confidence metadata.</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>02</span><h3>Plan</h3><p>Resolve the worktree identity, dependency closure, Compose project name, and collision-free ports.</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>03</span><h3>Run</h3><p>Generate a small override and let Docker Compose do the work it already does well.</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>04</span><h3>Report</h3><p>Return preview URLs, container health, logs, and teardown state in human or JSON form.</p></div>
+        </div>
+
+        <div class="architecture-figure">
+          <div class="architecture-caption"><span>Existing primitives</span><strong>Git + Compose + your coding agent</strong></div>
+          <div class="architecture-layers">
+            <div class="layer layer-agent">Claude · Codex · OpenCode · Human</div>
+            <div class="layer layer-work">work-containers CLI / future MCP adapter</div>
+            <div class="layer-group"><div class="layer">Git worktrees</div><div class="layer">Docker Compose</div><div class="layer">Project manifest</div></div>
+            <div class="layer layer-host">Your machine</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="manifest-section">
+      <div class="manifest-copy">
+        <div class="section-label">One reviewable contract</div>
+        <h2>The agent can infer.<br>You remain in control.</h2>
+        <p><code>work-containers init</code> proposes a manifest from the codebase. It records what was discovered and how confident the inference is. Destructive lifecycle actions remain explicit.</p>
+        <ul class="plain-list">
+          <li>Logical services mapped to Compose services</li>
+          <li>Dependency graph and preview ports</li>
+          <li>Health checks and default preview target</li>
+          <li>Review-first lifecycle hooks</li>
+        </ul>
+      </div>
+      <div class="code-window" aria-label="Example work-containers manifest">
+        <div class="code-head"><span>work-containers.json</span><span>version 1</span></div>
+        <pre><code>{
+  "project": { "name": "commerce-platform" },
+  "runtime": {
+    "orchestrator": "compose",
+    "composeFiles": ["compose.yaml"]
+  },
+  "services": {
+    "web": {
+      "composeService": "web",
+      "containerPort": 3000,
+      "dependencies": ["api"],
+      "openByDefault": true,
+      "discovery": {
+        "confidence": "high",
+        "source": "compose-config"
+      }
+    }
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="comparison section-grid">
+      <div class="section-label">The shift</div>
+      <div class="section-body comparison-body">
+        <div class="comparison-column comparison-before">
+          <span class="comparison-kicker">Without it</span>
+          <h3>Parallel code.<br>Serial validation.</h3>
+          <ul><li>Port collisions across branches</li><li>Agents guess startup commands</li><li>Shared databases leak state</li><li>Preview instructions live in chat</li><li>Orphaned containers accumulate</li></ul>
+        </div>
+        <div class="comparison-column comparison-after">
+          <span class="comparison-kicker">With it</span>
+          <h3>Parallel code.<br>Parallel environments.</h3>
+          <ul><li>Stable identity per worktree</li><li>Dependency-aware startup</li><li>Deterministic free ports</li><li>Machine-readable preview URLs</li><li>Explicit teardown lifecycle</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="install-section" id="install">
+      <div class="install-copy">
+        <div class="section-label">Start locally</div>
+        <h2>From clone to preview<br>in four commands.</h2>
+        <p>The project is early and intentionally local-first. Link the CLI, initialize a repository, review the generated contract, and start an isolated environment.</p>
+      </div>
+      <div class="install-terminal">
+        <div class="install-line"><span>1</span><code>git clone https://github.com/mxrcochxvez/work-containers.git</code><button type="button" data-copy="git clone https://github.com/mxrcochxvez/work-containers.git" aria-label="Copy clone command">Copy</button></div>
+        <div class="install-line"><span>2</span><code>cd work-containers &amp;&amp; npm link</code><button type="button" data-copy="cd work-containers && npm link" aria-label="Copy install command">Copy</button></div>
+        <div class="install-line"><span>3</span><code>cd ~/Projects/my-app &amp;&amp; work-containers init</code><button type="button" data-copy="cd ~/Projects/my-app && work-containers init" aria-label="Copy init command">Copy</button></div>
+        <div class="install-line"><span>4</span><code>work-containers up --services web</code><button type="button" data-copy="work-containers up --services web" aria-label="Copy start command">Copy</button></div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <p class="closing-label">The next unit of software work is not a branch.</p>
+      <h2>It is a branch<br>you can open.</h2>
+      <div class="closing-actions">
+        <a class="button button-primary" href="https://github.com/mxrcochxvez/work-containers">View the source ↗</a>
+        <a class="button button-secondary" href="https://github.com/mxrcochxvez/work-containers/issues">Shape the roadmap ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>work-containers</span><span>MIT licensed · built in the open</span><a href="https://github.com/mxrcochxvez/work-containers">GitHub ↗</a></footer>
+  <script src="./app.js" defer></script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 {
   "name": "work-containers",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Agent-friendly, isolated Docker Compose preview environments for Git worktrees.",
+  "homepage": "https://mxrcochxvez.github.io/work-containers/",
   "type": "module",
   "bin": {
     "work-containers": "src/cli.js"
@@ -14,7 +15,7 @@
   ],
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/cli.js && node --test"
+    "check": "node --check src/cli.js && node --check docs/app.js && node --test"
   },
   "engines": {
     "node": ">=20"

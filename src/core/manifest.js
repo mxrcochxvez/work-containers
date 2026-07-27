@@ -33,6 +33,18 @@ function stringArray(value, field) {
   return result;
 }
 
+function discoveryMetadata(value, field) {
+  if (value === undefined) return undefined;
+  assert(value && typeof value === "object" && !Array.isArray(value), `${field} must be an object.`);
+  assert(typeof value.source === "string" && value.source.length > 0, `${field}.source is required.`);
+  assert(typeof value.confidence === "number" && value.confidence >= 0 && value.confidence <= 1, `${field}.confidence must be between 0 and 1.`);
+  return {
+    source: value.source,
+    confidence: value.confidence,
+    reasons: stringArray(value.reasons, `${field}.reasons`),
+  };
+}
+
 export function validateManifest(raw) {
   assert(raw && typeof raw === "object" && !Array.isArray(raw), "root must be an object.");
   assert(raw.version === 1, "version must be 1.");
@@ -49,6 +61,10 @@ export function validateManifest(raw) {
     }
     const protocol = service.protocol ?? "http";
     assert(["http", "https", "tcp"].includes(protocol), `services.${name}.protocol must be http, https, or tcp.`);
+    assert(service.path === undefined || typeof service.path === "string", `services.${name}.path must be a string.`);
+    assert(service.healthcheck === undefined || typeof service.healthcheck === "string", `services.${name}.healthcheck must be a string.`);
+    assert(service.openByDefault === undefined || typeof service.openByDefault === "boolean", `services.${name}.openByDefault must be a boolean.`);
+    const discovery = discoveryMetadata(service.discovery, `services.${name}.discovery`);
     services[name] = {
       composeService: service.composeService,
       ...(service.containerPort === undefined ? {} : { containerPort: service.containerPort }),
@@ -57,6 +73,7 @@ export function validateManifest(raw) {
       ...(service.healthcheck ? { healthcheck: service.healthcheck } : {}),
       openByDefault: service.openByDefault ?? false,
       dependencies: stringArray(service.dependencies, `services.${name}.dependencies`),
+      ...(discovery ? { discovery } : {}),
     };
   }
 

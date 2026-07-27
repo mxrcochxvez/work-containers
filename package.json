@@ -1,0 +1,31 @@
+{
+  "name": "work-containers",
+  "version": "0.1.0",
+  "description": "Agent-friendly, isolated Docker Compose preview environments for Git worktrees.",
+  "type": "module",
+  "bin": {
+    "work-containers": "src/cli.js"
+  },
+  "files": [
+    "src",
+    "schema",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/cli.js && node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "git",
+    "worktree",
+    "docker",
+    "compose",
+    "development-environment",
+    "coding-agent"
+  ],
+  "license": "MIT"
+}

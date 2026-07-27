@@ -6,19 +6,20 @@ import { resolveWorktreeContext } from "./core/context.js";
 import { createPlan } from "./core/plan.js";
 import { runLifecycleCommands } from "./core/lifecycle.js";
 import { runCompose, writeComposeOverride } from "./core/compose.js";
+import { buildHealthReport, humanHealthReport, parseComposePs } from "./core/health.js";
 import { loadState, removeState, saveState } from "./core/state.js";
 import { runChecked } from "./core/process.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const HELP = `work-containers ${VERSION}
 
 Usage: work-containers <command> [options]
 
 Commands:
-  init                 Generate a reviewable project manifest
+  init                 Inspect Compose and generate a reviewable project manifest
   plan                 Resolve the worktree, services, ports, and URLs
   up                   Start the current worktree environment
-  status               Show Docker Compose status
+  status               Show runtime and health status
   logs [service]       Show or follow environment logs
   open [service]       Print a preview URL
   down                 Stop the current worktree environment
@@ -103,11 +104,20 @@ async function commandInit(args) {
   }
   const detection = await detectProject(cwd);
   await writeManifest(manifestPath, detection.manifest);
-  const result = { manifestPath, detected: detection.detected, warnings: detection.warnings };
+  const result = {
+    manifestPath,
+    detected: detection.detected,
+    warnings: detection.warnings,
+    suggestions: detection.suggestions,
+  };
   if (hasFlag(args, "--json")) print(result, true);
   else {
     console.log(`Created ${manifestPath}`);
     for (const item of detection.detected) console.log(`  detected: ${item}`);
+    for (const suggestion of detection.suggestions) {
+      const port = suggestion.containerPort ? `:${suggestion.containerPort}` : "";
+      console.log(`  inferred: ${suggestion.name} -> ${suggestion.protocol}${port} (confidence ${suggestion.confidence})`);
+    }
     for (const warning of detection.warnings) console.log(`  review: ${warning}`);
   }
 }
@@ -135,11 +145,10 @@ async function commandStatus(args) {
   const { plan } = await resolveProject(args);
   const state = await loadState(plan.id);
   if (!state) throw new Error("No environment state found. Run work-containers up first.");
-  const result = await runCompose(state, state.overrideFile, json ? ["ps", "--format", "json"] : ["ps"], { inherit: !json });
-  if (json) {
-    const rows = result.stdout.split("\n").filter(Boolean).map((line) => JSON.parse(line));
-    print({ id: plan.id, services: rows }, true);
-  }
+  const result = await runCompose(state, state.overrideFile, ["ps", "--format", "json"]);
+  const rows = parseComposePs(result.stdout);
+  const report = await buildHealthReport(plan, rows);
+  print(json ? report : humanHealthReport(report), json);
 }
 
 async function commandLogs(args) {
